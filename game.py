@@ -1,5 +1,5 @@
-import re
-import requests
+# import re
+# import requests
 
 import random
 import os
@@ -22,40 +22,45 @@ def conClear ():
     sleep(0.3)
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def checkBad (num):
-    if num == 4043:
-        return False
-    elif num == 566:
-        return False
-    else:
-        return True
+# def checkBad (num):
+#     if num == 4043:
+#         return False
+#     elif num == 566:
+#         return False
+#     else:
+#         return True
     
 class Wordle ():
     def __init__ (self, username, password, exist):
         self.curUser = username
         self.curPasw = password
         self.userExist = exist
-
-    # following code imported from https://gist.github.com/iancward/afe148f28c5767d5ced7a275c12816a3 cause I can't api
+        
     def fetch_word (letters):
-        meaningpedia_resp = requests.get(
-            f"https://meaningpedia.com/{letters}-letter-words?show=all")
-        pattern = re.compile(r'<span itemprop="name">(\w+)</span>')
-        word_list = pattern.findall(meaningpedia_resp.text)
+        # the website went down :(
+        # meaningpedia_resp = requests.get(
+        #     f"https://meaningpedia.com/5-letter-words?show=all")
+        # pattern = re.compile(r'<span itemprop="name">(\w+)</span>')
+        # word_list = pattern.findall(meaningpedia_resp.text)
         # 4043 is bad word, 566: 6363 total
+        file = open('words.txt', mode='r')
+        word_list = []
+        
+        for i in range(5755):
+            word_list.append(file.readline())
+            
+        finalIn = random.randint(0, 5754)
+        # ohno = False
 
-        finalIn = random.randint(0, 6364)
-        ohno = False
+        # if not checkBad(finalIn):
+        #     ohno = True
+        
+        # while ohno:
+        #     finalIn = random.randint(0, 6364)
 
-        if not checkBad(finalIn):
-            ohno = True
-
-        while ohno:
-            finalIn = random.randint(0, 6364)
-
-            if checkBad(finalIn):
-                return word_list[finalIn]
-
+        #     if checkBad(finalIn):
+        #         return word_list[finalIn]
+        
         hidword = word_list[finalIn]
         back_up = hidword
         return hidword
@@ -64,14 +69,13 @@ class Wordle ():
         greens = [""]
         yellows = [""]
         none = [""]
-        print(f"{back_up}")
+        print(f"{back_up}{constants.Reset}")
 
         # following code from stackoverflow: https://stackoverflow.com/questions/45263205/python-how-to-print-on-same-line-clearing-previous-text
         # for t in ['long line', '%']:
         #   sys.stdout.write('\033[K' + t.expandtabs(2) + '\r')
         # sys.stdout.write('\n')
-        print(f"{constants.Reset}")
-        for i in range(len(back_up)):
+        for i in range(len(back_up)-1):
             if guess[i] == back_up[i]:
                 print(f"{constants.Green}{guess[i]}{constants.White}", end="")
                 continue
@@ -81,10 +85,10 @@ class Wordle ():
             print(f"{constants.Red}{guess[i]}{constants.White}", end="")
 
     def checkValid (guess, guess_list):
-        meaningpedia_resp = requests.get(
-            f"https://meaningpedia.com/5-letter-words?show=all")
-        pattern = re.compile(r'<span itemprop="name">(\w+)</span>')
-        word_list = pattern.findall(meaningpedia_resp.text)
+        # meaningpedia_resp = requests.get(
+        #     f"https://meaningpedia.com/5-letter-words?show=all")
+        # pattern = re.compile(r'<span itemprop="name">(\w+)</span>')
+        # word_list = pattern.findall(meaningpedia_resp.text)
 
         if len(guess) != 5:
             print(f"{constants.Bold}Your guess must be 5 letters long!{constants.Reset}\n")
@@ -106,8 +110,10 @@ class Wordle ():
         back_up = hidword
 
         guess = input(
-            f"{constants.Bold}Game has begun! Insert your first guess\nNote: Yellow means it is in the string.\nGreen means it is at the correct place.\n{constants.reset}")
+            f"{constants.Bold}Game has begun! Insert your first guess\nNote: Yellow means it is in the string.\nGreen means it is at the correct place.\n{constants.Reset}")
 
+        # print(guess, back_up)
+        
         if guess == back_up:
             print(f"{constants.Blue}Good job! You got the word!{constants.White}")
             if self.userExist:
@@ -123,7 +129,7 @@ class Wordle ():
         guess_list.append(guess)
         Wordle.guess(guess, back_up)
 
-        for i in range(4):
+        for i in range(5):
             print("\n")
             guess = input(f"{constants.Bold}{constants.White}Next guess?{constants.Reset}\n")
             while not Wordle.checkValid(guess, guess_list):
@@ -131,8 +137,15 @@ class Wordle ():
 
             guess_list.append(guess)
             Wordle.guess(guess, hidword)
-            if guess == back_up:
+            
+            count = 0
+            for m in range(len(back_up)-1):
+                if guess[i] == back_up[i]:
+                    count += 1
+                    
+            if count == 5:
                 print(f"{constants.Bold}{constants.Blue}\nGood job! You got the word!{constants.White}{constants.Reset}")
+                sleep(1)
                 if self.userExist:
                     connection.execute("UPDATE AccountList SET wins = wins + 1 WHERE username=?", (str(self.curUser),))
                     connection.commit()
@@ -140,6 +153,7 @@ class Wordle ():
                 break
             if i == 4:
                 print(f"{constants.Bold}{constants.Blue}\nUh-oh! You ran out of guesses!{constants.White}{constants.Reset}")
+                sleep(1)
                 if self.userExist:
                   connection.execute("UPDATE AccountList SET losses = losses + 1 WHERE username=?", (str(self.curUser),))
                   connection.commit()
@@ -147,8 +161,6 @@ class Wordle ():
                 break
             
         connection.close()
-                
-
         # for i in len(back_upup):
         # 	if guess[i] == back_up[i]:
         # 		print("placeholder")
@@ -172,7 +184,12 @@ class Wordle ():
             Wordle.reOpt(self)
         elif option == "2" and self.curUser != "Guest":
             obj = Accounts(self.curUser, self.curPasw)
-            obj.delete()
+            if obj.delete():
+                raise SystemExit
+            else:
+                sleep(0.1)
+                conClear()
+                Wordle.reOpt(self)
         elif option == "4":
             raise SystemExit
         elif option == "5":
@@ -200,6 +217,8 @@ class Wordle ():
             print(f'''{constants.White}Stats for user {self.curUser}:
   Wins: {winNum}
   Losses: {lossNum}''')
+            sleep(1)
+            conClear()
             Wordle.reOpt(self)
         elif option == "3" and self.curUser != "Guest":
             obj = Accounts(self.curUser, self.curPasw)
@@ -208,5 +227,6 @@ class Wordle ():
             Wordle.reOpt(self)
         else:
             print(f"{constants.White}Not a valid option. Try again.")
-            self.conClear()
+            sleep(0.5)
+            conClear()
             Wordle.reOpt(self)

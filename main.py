@@ -21,13 +21,25 @@ userExist = False
 # connection.execute("""CREATE TABLE AccountList(username STRING,password STRING,wins INT,losses INT);""")
 # connection.close()
 
+def conClear ():
+    print(f"{constants.White}{constants.Reset}Clearing.", end="")
+    print("\r", end="")
+    sleep(0.3)
+    print("Clearing..", end="")
+    print("\r", end="")
+    sleep(0.3)
+    print("Clearing...", end="")
+    print("\r", end="")
+    sleep(0.3)
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
 userAcc = input("Do you have an account? (yes/no): ")
 
 if userAcc.lower() == "yes":
     attempts = 0
     logres = False
     while not logres and attempts < 5:
-        obj = Accounts(input("Username? "), input(f"Password? {constants.invisible}"))
+        obj = Accounts(input("Username? "), input(f"Password? {constants.Invisible}"))
         
         logres = obj.login()
         
@@ -52,6 +64,7 @@ A guest account works too, except your stats will not be saved. yes/no: ''')
         userExist = True
     else:
         curUser = "Guest"
-
+    
+conClear()
 obj = Wordle(curUser, curPasw, userExist)
 obj.reOpt()

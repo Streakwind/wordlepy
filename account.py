@@ -27,13 +27,15 @@ class Accounts ():
 
         data = cursor_object.fetchone()
         
+        # print(str(data))
+        
         connection.close()
         
         if data is None:
             print(f"That is not a valid username")
             return False
 
-        if (data is not None) and (str(data) == f"({self.pasW},)"):
+        if (data is not None) and (str(data) == f"('{self.pasW}',)"):
             print(f"Login successful.")
             global curUser
             curUser = self.user
@@ -87,7 +89,10 @@ class Accounts ():
         if confirm.lower() == "yes":
             connection.execute("DELETE FROM AccountList WHERE username=?", (str(self.user),))
             connection.commit()
-        connection.close()
+            connection.close()
+            return True
+        else:
+            return False
 
     def change_password (self):
         connection = sqlite3.connect("accountsdb")
