@@ -69,7 +69,7 @@ class Wordle ():
         greens = [""]
         yellows = [""]
         none = [""]
-        print(f"{back_up}{constants.Reset}")
+        #print(f"{back_up}{constants.Reset}")
 
         # following code from stackoverflow: https://stackoverflow.com/questions/45263205/python-how-to-print-on-same-line-clearing-previous-text
         # for t in ['long line', '%']:
